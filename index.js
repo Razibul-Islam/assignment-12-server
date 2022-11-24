@@ -48,7 +48,11 @@ async function run() {
       res.send(result);
     });
 
-   
+    // Product
+
+    app.post('products', async (req, res) => {
+      
+    })
   } finally {
   }
 }
