@@ -23,7 +23,12 @@ async function run() {
     const userCollection = client.db("classic-mobile").collection("user");
     const productCollection = client.db("classic-mobile").collection("product");
 
-    
+    // User
+    app.post("/user", async (req, res) => {
+      const user = req.body;
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
 
     
 
