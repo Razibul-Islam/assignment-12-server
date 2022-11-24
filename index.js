@@ -18,20 +18,25 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+async function run() {
+  try {
+    const userCollection = client.db("classic-mobile").collection("user");
+    const productCollection = client.db("classic-mobile").collection("product");
 
+    
 
-// async function run() {
-//   try {
-//   } finally {
-//   }
-// }
-// run().catch((err) => console.error(err));
+    
+
+   
+  } finally {
+  }
+}
+run().catch((err) => console.error(err));
 
 app.get("/", (req, res) => {
   res.send("doctors portal server is running");
 });
 
-
 app.listen(port, () => {
-    console.log('Port is running');
-})
+  console.log("Port is running");
+});
