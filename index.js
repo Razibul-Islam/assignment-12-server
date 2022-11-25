@@ -22,6 +22,9 @@ async function run() {
   try {
     const userCollection = client.db("classic-mobile").collection("user");
     const productCollection = client.db("classic-mobile").collection("product");
+    const categoryCollection = client
+      .db("classic-mobile")
+      .collection("Category");
 
     // User
     app.post("/user", async (req, res) => {
@@ -67,11 +70,29 @@ async function run() {
     // Category
 
     // http://localhost:500/brand?Brand=Nokia
-    app.get("/brand", async (req, res) => {
-      const Brand = req.query.Brand;
-      // console.log(Brand);
-      const query = { Brand };
+
+    // app.get("/brand", async (req, res) => {
+    //   const Brand = req.query.Brand;
+    // console.log(Brand);
+    //   const query = { Brand };
+    //   const result = await productCollection.find(query).toArray();
+    //   res.send(result);
+    // });
+
+    app.get("/brand/:name", async (req, res) => {
+      const category = req.params.name;
+      // console.log(category);
+      const query = { Brand: category };
       const result = await productCollection.find(query).toArray();
+      // console.log(result);
+      res.send(result);
+    });
+
+    // Category
+
+    app.get("/category", async (req, res) => {
+      const query = {};
+      const result = await categoryCollection.find(query).toArray();
       res.send(result);
     });
 
