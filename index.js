@@ -48,16 +48,47 @@ async function run() {
       res.send(result);
     });
 
+    // http://localhost:500/user
+    app.get("/user", async (req, res) => {
+      const query = {};
+      const users = await userCollection.find(query).toArray();
+      res.send(users);
+    });
+
+    app.get("/users/:email", async (req, res) => {
+      const email = req.params.email;
+      // console.log(email);
+      const query = { email };
+      const seller = await userCollection.findOne(query);
+      // console.log(seller);
+      res.send({ role: seller?.role === "Seller" });
+    });
+
+    // Category
+
+    // http://localhost:500/brand?Brand=Nokia
+    app.get("/brand", async (req, res) => {
+      const Brand = req.query.Brand;
+      // console.log(Brand);
+      const query = { Brand };
+      const result = await productCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // Product
 
-    app.post('/products', async (req, res) => {
+    app.post("/products", async (req, res) => {
       const product = req.body;
-      console.log(product);
+      // console.log(product);
       const result = await productCollection.insertOne(product);
       res.send(result);
-    })
+    });
 
-    
+    app.get("/products", async (req, res) => {
+      const query = {};
+      const users = await productCollection.find(query).toArray();
+      res.send(users);
+    });
   } finally {
   }
 }
