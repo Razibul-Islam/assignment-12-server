@@ -28,6 +28,9 @@ async function run() {
     const bookedProductCollection = client
       .db("classic-mobile")
       .collection("booked");
+    const advertiseCollection = client
+      .db("classic-mobile")
+      .collection("advertise");
 
     /* User */
     // Post a User
@@ -61,7 +64,7 @@ async function run() {
     app.get("/user", async (req, res) => {
       const query = {};
       const users = await userCollection.find(query).toArray();
-      console.log(users);
+      // console.log(users);
       res.send(users);
     });
 
@@ -138,21 +141,20 @@ async function run() {
       res.send(users);
     });
 
-    // get my Product
-    // app.get("/dashboard/myProduct", async (req, res) => {
-    //   const email = req.query.email;
-    //   console.log(email);
-    //   const query = { email };
-    //   const result = await productCollection.find(query).toArray();
-    //   res.send(result);
-    // });
+ 
+    app.get("/allUsers/:role", async (req, res) => {
+      const role = req.params.role;
+      const query = { role: role };
+      const result = await userCollection.find(query).toArray();
+      res.send(result);
+    });
 
     // Get My product
     // http://localhost:5000/dashboard/myProduct?email=razibulislam665@gmail.com
     app.get("/dashboard/myProduct", async (req, res) => {
       const email = req.query.email;
       const query = { userEmail: email };
-      console.log(query);
+      // console.log(query);
       const result = await productCollection.find(query).toArray();
       res.send(result);
     });
@@ -189,10 +191,8 @@ async function run() {
       res.send(bookings);
     });
 
-    /*Advertise Put*/
-    app.put('/advertise', async (req, res) => {
-      
-    })
+   
+
   } finally {
   }
 }
