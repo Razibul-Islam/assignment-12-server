@@ -3,9 +3,12 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const stripe = require("stripe")(process.env.STRIPE_SCREET_KEY);
 const port = process.env.PORT || 5000;
 
 const app = express();
+
+// console.log(typeof(stripe));
 
 // middleware
 app.use(cors());
@@ -20,6 +23,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    // All Collections
     const userCollection = client.db("classic-mobile").collection("user");
     const productCollection = client.db("classic-mobile").collection("product");
     const categoryCollection = client
@@ -31,6 +35,9 @@ async function run() {
     const reportProductCollection = client
       .db("classic-mobile")
       .collection("report");
+    const paymentsCollection = client
+      .db("classic-mobile")
+      .collection("payments");
 
     /* User */
     // Post a User
@@ -93,6 +100,33 @@ async function run() {
       // console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // Get User Verified
+    app.put("/users/verify/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          verify: "true",
+        },
+      };
+      const result = await userCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    // Get Verified User Email
+    app.get("/users/verify/:email", async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      console.log(filter);
+      const result = await userCollection.findOne(filter);
       res.send(result);
     });
 
@@ -213,6 +247,49 @@ async function run() {
       const query = { email: email };
       const bookings = await bookedProductCollection.find(query).toArray();
       res.send(bookings);
+    });
+
+    // Payments Orders
+    app.get("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const orders = await bookedProductCollection.findOne(query);
+      res.send(orders);
+    });
+
+    // create-payment-intent
+    app.post("/create-payment-intent", async (req, res) => {
+      const orders = req.body;
+      const price = orders.resalePrice;
+      const amount = price * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        currency: "usd",
+        amount: amount,
+        payment_method_types: ["card"],
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    //payments
+    app.post("/payments", async (req, res) => {
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+      const id = payment.bookingId;
+      const filter = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId,
+        },
+      };
+      const updatedResult = await bookedProductCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      res.send(result);
     });
 
     // Delete a Order
