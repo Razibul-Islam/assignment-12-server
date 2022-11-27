@@ -28,9 +28,9 @@ async function run() {
     const bookedProductCollection = client
       .db("classic-mobile")
       .collection("booked");
-    const advertiseCollection = client
+    const reportProductCollection = client
       .db("classic-mobile")
-      .collection("advertise");
+      .collection("report");
 
     /* User */
     // Post a User
@@ -141,7 +141,7 @@ async function run() {
       res.send(users);
     });
 
- 
+    // Get seller or buyer
     app.get("/allUsers/:role", async (req, res) => {
       const role = req.params.role;
       const query = { role: role };
@@ -183,6 +183,30 @@ async function run() {
       res.send(result);
     });
 
+    // Add Report Product
+    app.post("/addReport", async (req, res) => {
+      const product = req.body;
+      // console.log(product);
+      const result = await reportProductCollection.insertOne(product);
+      res.send(result);
+    });
+
+    // Get Report
+    app.get("/allReport", async (req, res) => {
+      const query = {};
+      const result = await reportProductCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // Delete A Report
+    app.delete("/reports/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: ObjectId(id) };
+      const result = await reportProductCollection.deleteOne(query);
+      res.send(result);
+    });
+
     /* My Orders */
     app.get("/orders", async (req, res) => {
       const email = req.query.email;
@@ -191,8 +215,14 @@ async function run() {
       res.send(bookings);
     });
 
-   
-
+    // Delete a Order
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: ObjectId(id) };
+      const result = await bookedProductCollection.deleteOne(query);
+      res.send(result);
+    });
   } finally {
   }
 }
