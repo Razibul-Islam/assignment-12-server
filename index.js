@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-const jwt = require("jsonwebtoken");
 const stripe = require("stripe")(process.env.STRIPE_SCREET_KEY);
 const port = process.env.PORT || 5000;
 
@@ -38,6 +37,10 @@ async function run() {
     const paymentsCollection = client
       .db("classic-mobile")
       .collection("payments");
+
+    const advertiseCollection = client
+      .db("classic-mobile")
+      .collection("advertise");
 
     /* User */
     // Post a User
@@ -94,6 +97,7 @@ async function run() {
       // console.log(seller);
       res.send({ role: seller?.role === "Admin" });
     });
+
     // delete a user
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
@@ -249,6 +253,27 @@ async function run() {
       res.send(bookings);
     });
 
+    // Booking
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      // console.log(order);
+
+      const query = {
+        productId: order.productId,
+        email: order.email,
+      };
+
+      const alreadyBooked = await bookingCollection.find(query).toArray();
+
+      if (alreadyBooked.length) {
+        const message = `You already have a buy ${order.productName}`;
+        return res.send({ acknowledged: false, message });
+      }
+
+      const result = await bookingCollection.insertOne(order);
+      res.send(result);
+    });
+
     // Payments Orders
     app.get("/orders/:id", async (req, res) => {
       const id = req.params.id;
@@ -300,13 +325,39 @@ async function run() {
       const result = await bookedProductCollection.deleteOne(query);
       res.send(result);
     });
+
+    // Advertise
+    app.get("/myAdvertise/:advertise", async (req, res) => {
+      const advertise = req.params.advertise;
+      const query = { advertise: advertise };
+      const data = await productCollection.find(query).toArray();
+      res.send(data);
+    });
+
+    // Update advertise
+    app.put("/myAdvertise/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          advertise: "true",
+        },
+      };
+      const result = await productCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
   } finally {
   }
 }
 run().catch((err) => console.error(err));
 
 app.get("/", (req, res) => {
-  res.send("doctors portal server is running");
+  res.send("Classic server is running");
 });
 
 app.listen(port, () => {
