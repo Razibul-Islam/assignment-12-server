@@ -254,23 +254,23 @@ async function run() {
     });
 
     // Booking
-    app.post("/orders", async (req, res) => {
-      const order = req.body;
-      // console.log(order);
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
+      // console.log(booking);
 
       const query = {
-        productId: order.productId,
-        email: order.email,
+        productId: booking.productId,
+        email: booking.email,
       };
 
-      const alreadyBooked = await bookingCollection.find(query).toArray();
+      const alreadyBooked = await bookedProductCollection.find(query).toArray();
 
       if (alreadyBooked.length) {
-        const message = `You already have a buy ${order.productName}`;
+        const message = `You already have a booking for ${booking.ProductTitle}`;
         return res.send({ acknowledged: false, message });
       }
 
-      const result = await bookingCollection.insertOne(order);
+      const result = await bookedProductCollection.insertOne(booking);
       res.send(result);
     });
 
