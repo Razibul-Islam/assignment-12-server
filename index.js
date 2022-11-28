@@ -351,6 +351,27 @@ async function run() {
       );
       res.send(result);
     });
+
+    // Product sold status set
+    app.put("/soldProduct/sold/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          // report: true,
+          sold: true,
+        },
+      };
+      const result = await productCollection.updateOne(
+        filter,
+        updatedDoc,
+        option
+      );
+      res.send(result);
+    });
+
+    
   } finally {
   }
 }
