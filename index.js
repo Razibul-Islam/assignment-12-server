@@ -47,6 +47,7 @@ async function run() {
     app.post("/user", async (req, res) => {
       const user = req.body;
       const result = await userCollection.insertOne(user);
+      console.log(result);
       res.send(result);
     });
 
@@ -65,6 +66,7 @@ async function run() {
           verify: data.verify,
         },
       };
+      // console.log(updateDoc);
       const result = await userCollection.updateOne(query, updateDoc, options);
       res.send(result);
     });
@@ -216,7 +218,7 @@ async function run() {
     // Add Booked Product
     app.post("/addProduct", async (req, res) => {
       const product = req.body;
-      // console.log(product);
+      console.log(product);
       const result = await bookedProductCollection.insertOne(product);
       res.send(result);
     });
@@ -341,7 +343,7 @@ async function run() {
       const options = { upsert: true };
       const updatedDoc = {
         $set: {
-          advertise: "true",
+          advertise: 'true',
         },
       };
       const result = await productCollection.updateOne(
@@ -361,6 +363,7 @@ async function run() {
         $set: {
           // report: true,
           sold: true,
+          advertise: 'false',
         },
       };
       const result = await productCollection.updateOne(
@@ -370,8 +373,6 @@ async function run() {
       );
       res.send(result);
     });
-
-    
   } finally {
   }
 }
