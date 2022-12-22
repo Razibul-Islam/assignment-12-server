@@ -351,6 +351,25 @@ async function run() {
         updatedDoc,
         options
       );
+      // console.log('add');
+      res.send(result);
+    });
+
+    app.put("/myAdvertiseRemove/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          advertise: "false",
+        },
+      };
+      const result = await productCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      // console.log("remove");
       res.send(result);
     });
 
